@@ -5,19 +5,14 @@ import { useAddress, useStorageUpload } from "@thirdweb-dev/react";
 import { useLazyQuery, useMutation, useQuery } from "@apollo/client";
 import { CREATE_REGISTER_ESSENCE_TYPED_DATA } from "@/graphql/CreateSubscribeTypedData.ts";
 import { RELAY_ACTION_STATUS } from "../graphql/RelayActionStatus";
-import {
-  getAccessToken,
-  getEthereumSigner,
-  getUser,
-  parseIPFSUrl,
-} from "@/helpers/helpers";
+import { getEthereumSigner, parseIPFSUrl } from "@/helpers/helpers";
 import { RELAY } from "@/graphql/Relay";
 import { ThirdwebStorage } from "@thirdweb-dev/storage";
 import { ethers } from "ethers";
-import { CREATE_COLLECT_ESSENCE_TYPED_DATA } from "@/graphql/CreateCollectEssenceTypedata";
-import useCollectEssence from "./useCollectEssence";
 
 import { toast } from "react-hot-toast";
+import useLocalStorage from "./useLocalStorage";
+import useAccessToken from "./useAccessToken";
 
 type FunctionProps = {
   nftFile: File | undefined;
@@ -32,22 +27,20 @@ type FunctionProps = {
 };
 
 const useCreateEssence = () => {
+  const { getUser } = useLocalStorage();
   const [status, setStatus] = useState();
   const address = useAddress();
   const { mutateAsync: uploadToIpfs } = useStorageUpload();
+  const { getAccessToken } = useAccessToken();
   const token = getAccessToken();
-  const collectEssence = useCollectEssence();
 
-  const [createTypedData, { data, loading, error }] = useMutation(
-    CREATE_REGISTER_ESSENCE_TYPED_DATA,
-    {
-      context: {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+  const [createTypedData] = useMutation(CREATE_REGISTER_ESSENCE_TYPED_DATA, {
+    context: {
+      headers: {
+        Authorization: `Bearer ${token}`,
       },
-    }
-  );
+    },
+  });
 
   const [relay] = useMutation(RELAY, {
     context: {
@@ -72,6 +65,8 @@ const useCreateEssence = () => {
         alert("Please connect you wallet first");
         return;
       }
+
+      const token = getAccessToken();
 
       if (!userInfo || token.length === 0) {
         alert("No user token available Please login.");

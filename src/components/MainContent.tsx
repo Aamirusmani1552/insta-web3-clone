@@ -1,6 +1,4 @@
 import React from "react";
-import Post from "./Post";
-import SideProfile from "./SideProfile";
 import ConnectWithCyberConnect from "./ConnectWithCyberConnect";
 
 type Props = {};
@@ -13,6 +11,8 @@ function MainContent({}: Props) {
           <ConnectWithCyberConnect />
         </div>
         {/* posts will come here */}
+
+        <div>these are the posts</div>
       </div>
       {/* <SideProfile /> */}
     </div>

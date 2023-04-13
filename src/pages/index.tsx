@@ -1,13 +1,20 @@
 import Head from "next/head";
-import { Inter } from "@next/font/google";
 import Header from "../components/Header";
 import Sidebar from "@/components/Sidebar";
 import BottomNavBar from "@/components/BottomNavBar";
 import MainContent from "@/components/MainContent";
-
-const inter = Inter({ subsets: ["latin"] });
+import useGetEssence from "@/hooks/useGetEssence";
+import { useEffect } from "react";
+import { useAddress } from "@thirdweb-dev/react";
 
 export default function Home() {
+  const { getEssence } = useGetEssence();
+  const address = useAddress();
+
+  // useEffect(() => {
+  //   getEssence();
+  // }, [getEssence, address]);
+
   return (
     <>
       <Head>
@@ -16,7 +23,7 @@ export default function Home() {
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
-      <main className={inter.className}>
+      <main className={""}>
         <Header />
         <div className="flex">
           <Sidebar />
