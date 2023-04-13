@@ -11,7 +11,6 @@ import {
   SearchIcon,
 } from "./ImportantIcons";
 
-import CreatenewPostModal from "./CreateNewPostModal";
 import { CgProfile } from "react-icons/cg";
 
 import Link from "next/link";
@@ -51,9 +50,11 @@ function Sidebar({}: Props) {
       </div>
       <nav>
         <ul className="flex flex-col">
-          <li className={styles.listItemStyle}>
-            <HomeIcon />
-            <span className={styles.textStyles}>Home</span>
+          <li>
+            <Link href={"/"} className={styles.listItemStyle}>
+              <HomeIcon />
+              <span className={styles.textStyles}>Home</span>
+            </Link>
           </li>
           <li className={styles.listItemStyle}>
             <SearchIcon />
@@ -77,15 +78,11 @@ function Sidebar({}: Props) {
               <span className={styles.textStyles}>Notifications</span>
             </li>
           </Link>
-          <li
-            className={styles.listItemStyle}
-            onClick={(e) => {
-              setIsOpen(true);
-              setIsLoading(true);
-            }}
-          >
-            <CreatePostIcon />
-            <span className={styles.textStyles}>Create</span>
+          <li>
+            <Link href={"/create"} className={styles.listItemStyle}>
+              <CreatePostIcon />
+              <span className={styles.textStyles}>Create</span>
+            </Link>
           </li>
           {address && (
             <li className={styles.listItemStyle}>
@@ -100,11 +97,6 @@ function Sidebar({}: Props) {
           )}
         </ul>
       </nav>
-      <CreatenewPostModal
-        isOpen={isOpen}
-        setIsOpen={setIsOpen}
-        setIsLoading={setIsLoading}
-      />
     </div>
   );
 }

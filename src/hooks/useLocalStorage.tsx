@@ -67,7 +67,37 @@ const useLocalStorage = () => {
     }
   };
 
-  return { removeUser, getUser, getItem, setUser, setItem };
+  const setAccessToken = (token: TokenData) => {
+    if (typeof window != "undefined") {
+      const ls = window.localStorage;
+      ls.setItem("CC_ACCESS_TOKEN", JSON.stringify(token));
+    }
+  };
+
+  const getAccessToken = (): TokenData | null => {
+    let data;
+    if (typeof window != "undefined") {
+      let dataJson = localStorage.getItem("CC_ACCESS_TOKEN");
+      if (!dataJson || dataJson.length == 0) {
+        return null;
+      }
+      let data = JSON.parse(dataJson) as TokenData;
+      if (data) {
+        return data;
+      }
+    }
+    return null;
+  };
+
+  return {
+    removeUser,
+    getUser,
+    getItem,
+    setUser,
+    setItem,
+    getAccessToken,
+    setAccessToken,
+  };
 };
 
 export default useLocalStorage;

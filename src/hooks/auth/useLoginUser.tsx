@@ -1,16 +1,18 @@
 import { LOGIN_GET_MESSAGE } from "@/graphql/loginGetMessage";
 import { LOGIN_VERIFY } from "@/graphql/loginVerifty";
-import { setAccessToken, getEthereumSigner } from "@/helpers/helpers";
+import { getEthereumSigner } from "@/helpers/helpers";
 import { useMutation } from "@apollo/client";
 
 import { useAddress } from "@thirdweb-dev/react";
 import useLocalStorage from "../useLocalStorage";
+import { useState } from "react";
 
 const useLoginUser = () => {
   const address = useAddress();
+  const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
   const [loginGetMessage] = useMutation(LOGIN_GET_MESSAGE);
   const [loginVerify] = useMutation(LOGIN_VERIFY);
-  const { getUser } = useLocalStorage();
+  const { getUser, getAccessToken, setAccessToken } = useLocalStorage();
 
   async function loginUser() {
     // Get the signers
@@ -25,8 +27,14 @@ const useLoginUser = () => {
     }
 
     const { handle, profileId } = userInfo;
+    const tokenData = getAccessToken();
 
     try {
+      if (tokenData) {
+        setIsLoggedIn(true);
+        return;
+      }
+
       //get signer
       const signer = await getEthereumSigner();
 
@@ -60,12 +68,15 @@ const useLoginUser = () => {
       if (!accessToken) {
         throw new Error("An error occured during login");
       }
-      setAccessToken(accessToken);
+
+      setIsLoggedIn(true);
+      setAccessToken({ accessToken: accessToken, generatedAt: new Date() });
     } catch (error) {
-      throw error;
+      alert(error);
+      console.log(error);
     }
   }
-  return { loginUser };
+  return { loginUser, isLoggedIn };
 };
 
 export default useLoginUser;

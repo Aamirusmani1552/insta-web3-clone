@@ -7,7 +7,9 @@ import {
   MessageIcon,
   ReelsIcon,
   SearchIcon,
+  CreatePostIcon,
 } from "./ImportantIcons";
+import Link from "next/link";
 
 type Props = {};
 
@@ -24,13 +26,17 @@ function BottomNavBar({}: Props) {
     <nav className={styles.mainContainer}>
       <ul className={styles.ulStyles}>
         <li className={styles.itemStyles}>
-          <HomeIcon />
+          <Link href={"/"}>
+            <HomeIcon />
+          </Link>
         </li>
         <li className={styles.itemStyles}>
           <SearchIcon />
         </li>
         <li className={styles.itemStyles}>
-          <ExploreIcon />
+          <Link href={"/create"}>
+            <CreatePostIcon />
+          </Link>
         </li>
         <li className={styles.itemStyles}>
           <ReelsIcon />

@@ -1,5 +1,4 @@
 import { EssenceMetadata } from "@/Types/__generated__/graphql";
-import React, { useState } from "react";
 import { v4 as uuidv4 } from "uuid";
 import { useAddress, useStorageUpload } from "@thirdweb-dev/react";
 import { useLazyQuery, useMutation, useQuery } from "@apollo/client";
@@ -8,8 +7,7 @@ import { RELAY_ACTION_STATUS } from "../graphql/RelayActionStatus";
 import { getEthereumSigner, parseIPFSUrl } from "@/helpers/helpers";
 import { RELAY } from "@/graphql/Relay";
 import { ThirdwebStorage } from "@thirdweb-dev/storage";
-import { ethers } from "ethers";
-
+import { useState } from "react";
 import { toast } from "react-hot-toast";
 import useLocalStorage from "./useLocalStorage";
 import useAccessToken from "./useAccessToken";
@@ -18,21 +16,17 @@ type FunctionProps = {
   nftFile: File | undefined;
   title: string;
   description: string;
-  content: string;
-  paid: boolean;
-  amount?: number;
-  collectSupply?: number;
-  appID: string;
-  vedio_ipfs_uri: string;
+  vedio_ipfs_uri?: string;
 };
 
 const useCreateEssence = () => {
   const { getUser } = useLocalStorage();
-  const [status, setStatus] = useState();
   const address = useAddress();
+  const [status, setStatus] = useState<string>("Create");
   const { mutateAsync: uploadToIpfs } = useStorageUpload();
   const { getAccessToken } = useAccessToken();
   const token = getAccessToken();
+  const appId = "example_app_Id";
 
   const [createTypedData] = useMutation(CREATE_REGISTER_ESSENCE_TYPED_DATA, {
     context: {
@@ -68,23 +62,19 @@ const useCreateEssence = () => {
 
       const token = getAccessToken();
 
+      if (!token) {
+        alert("you are not signed in");
+        return;
+      }
+
       if (!userInfo || token.length === 0) {
         alert("No user token available Please login.");
         return;
       }
 
-      const {
-        nftFile,
-        content,
-        description,
-        title,
-        amount,
-        paid,
-        collectSupply,
-        appID,
-        vedio_ipfs_uri,
-      } = props;
+      const { nftFile, description, title, vedio_ipfs_uri } = props;
 
+      setStatus("Uploading");
       // STORING FILE IN IPFS
       nftFileURI = (await uploadToIpfs({ data: [nftFile] }))[0];
 
@@ -98,10 +88,10 @@ const useCreateEssence = () => {
       const metadata: EssenceMetadata = {
         metadata_id: essenceID,
         version: "1.0.0",
-        app_id: appID,
+        app_id: appId,
         lang: "en",
         issue_date: new Date().toISOString().slice(0, 10),
-        content: content.length > 0 ? content : "",
+        content: "",
         media: [],
         tags: [],
         image: parseIPFSUrl(nftFileURI),
@@ -110,15 +100,15 @@ const useCreateEssence = () => {
         attributes: [],
       };
 
-      if (vedio_ipfs_uri.length > 0) {
+      if (vedio_ipfs_uri && vedio_ipfs_uri.length > 0) {
         metadata.animation_url =
           "https://gateway.ipfscdn.io/ipfs/" + vedio_ipfs_uri;
       }
 
-      console.log(JSON.stringify(metadata));
-
       const metadataURI = await storage.upload(metadata);
       console.log(metadataURI);
+
+      setStatus("Waiting For approval");
 
       // CREATING TYPED METADATA FOR USER SIGNATURE
       const typedDataResult = await createTypedData({
@@ -129,31 +119,15 @@ const useCreateEssence = () => {
             symbol: "POST",
             tokenURI: parseIPFSUrl(metadataURI),
             transferable: true,
-            middleware:
-              paid === false
-                ? { collectFree: true }
-                : {
-                    collectPaid: {
-                      /* Address that will receive the amount */
-                      recipient: address,
-                      /* Number of times the Essence can be collected */
-                      totalSupply: collectSupply
-                        ? collectSupply.toString()
-                        : "1000",
-                      /* Amount that needs to be paid to collect essence */
-                      amount: amount
-                        ? ethers.utils.parseEther(amount.toString()).toString()
-                        : "1000000000000000000",
-                      /* The currency for the  amount. BUSD Token contract on BNB Testnet */
-                      currency: "0xed24fc36d5ee211ea25a80239fb8c4cfd80f12ee",
-                      /* If it require that the collector is also subscribed */
-                      subscribeRequired: false,
-                    },
-                  },
+            middleware: {
+              collectFree: true,
+            },
             deployAtRegister: true,
           },
         },
       });
+
+      setStatus("Creating Post");
       const typedData =
         typedDataResult.data?.createRegisterEssenceTypedData.typedData;
       const message = typedData?.data;
@@ -191,11 +165,14 @@ const useCreateEssence = () => {
       toast.success("Successfully Created!");
     } catch (error) {
       console.log(error);
-      toast.error("Something went wrong");
+      const err = error as Error;
+      toast.error(err.message);
+    } finally {
+      setStatus("Create");
     }
   }
 
-  return createEssence;
+  return { createEssence, status };
 };
 
 export default useCreateEssence;

@@ -3,7 +3,6 @@ import React, { useState } from "react";
 import { BsThreeDots } from "react-icons/bs";
 import { CommentIcon, LikeIcon, SaveIcon, SendIcon } from "./ImportantIcons";
 import { format } from "timeago.js";
-import exampleImage from "../../public/boredApe.png";
 
 type Props = {};
 
@@ -33,7 +32,7 @@ function Post({}: Props) {
       <div className="w-full relative object-contain">
         <MediaRenderer
           // @ts-ignore
-          src={exampleImage.src}
+          src={""}
           alt={"post"}
           style={{
             width: "100%",

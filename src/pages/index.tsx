@@ -3,18 +3,8 @@ import Header from "../components/Header";
 import Sidebar from "@/components/Sidebar";
 import BottomNavBar from "@/components/BottomNavBar";
 import MainContent from "@/components/MainContent";
-import useGetEssence from "@/hooks/useGetEssence";
-import { useEffect } from "react";
-import { useAddress } from "@thirdweb-dev/react";
 
 export default function Home() {
-  const { getEssence } = useGetEssence();
-  const address = useAddress();
-
-  // useEffect(() => {
-  //   getEssence();
-  // }, [getEssence, address]);
-
   return (
     <>
       <Head>

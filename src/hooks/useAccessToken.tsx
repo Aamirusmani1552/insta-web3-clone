@@ -6,21 +6,22 @@ type TokenData = {
 };
 
 const useAccessToken = () => {
-  const getAccessToken = (): string => {
+  const getAccessToken = (): string | null => {
     if (typeof window != "undefined") {
       const ls = window.localStorage;
 
       if (ls) {
-        const tokenJSON = ls.getItem("LH_STORAGE_KEY");
+        const tokenJSON = ls.getItem("CC_ACCESS_TOKEN");
         if (!tokenJSON || tokenJSON.length == 0) {
-          return "";
+          return null;
         }
 
         const tokenData = JSON.parse(tokenJSON) as TokenData;
         const { generatedAt, accessToken } = tokenData;
 
         if (isDateMoreThanDayOld(generatedAt)) {
-          return "";
+          removeAccessToken();
+          return null;
         }
 
         if (accessToken) {
@@ -28,7 +29,7 @@ const useAccessToken = () => {
         }
       }
     }
-    return "";
+    return null;
   };
 
   const setAccessToken = (accessToken: string) => {

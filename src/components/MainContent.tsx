@@ -1,9 +1,20 @@
-import React from "react";
+import React, { useEffect } from "react";
 import ConnectWithCyberConnect from "./ConnectWithCyberConnect";
+import useGetEssence from "@/hooks/useGetEssence";
+import { useAddress } from "@thirdweb-dev/react";
+import Post from "./Post";
 
 type Props = {};
 
 function MainContent({}: Props) {
+  const { getEssence, essences } = useGetEssence();
+  const address = useAddress();
+
+  useEffect(() => {
+    if (essences) return;
+    getEssence();
+  }, [getEssence, address]);
+
   return (
     <div className="w-full flex min-h-full  px-0 md:px-20 flex-1 md:w-400px">
       <div className=" w-full   px-2 md:px-0 pb-12">
@@ -12,7 +23,12 @@ function MainContent({}: Props) {
         </div>
         {/* posts will come here */}
 
-        <div>these are the posts</div>
+        <div>
+          {essences &&
+            essences.essencesBy.edges?.map((e, k) => {
+              return <Post key={k} />;
+            })}
+        </div>
       </div>
       {/* <SideProfile /> */}
     </div>
