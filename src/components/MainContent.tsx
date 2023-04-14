@@ -24,10 +24,15 @@ function MainContent({}: Props) {
         {/* posts will come here */}
 
         <div>
-          {essences &&
+          {essences ? (
             essences.essencesBy.edges?.map((e, k) => {
-              return <Post key={k} />;
-            })}
+              return <Post key={k} data={e} />;
+            })
+          ) : (
+            <div className="w-full h-[200px] max-w-[500px] flex items-center justify-center ">
+              <div className="w-8 h-8 border-4 border-b-transparent rounded-full animate-spin"></div>
+            </div>
+          )}
         </div>
       </div>
       {/* <SideProfile /> */}

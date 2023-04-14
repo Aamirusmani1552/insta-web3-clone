@@ -4,6 +4,7 @@ import Header from "@/components/Header";
 import MainContent from "@/components/MainContent";
 import Sidebar from "@/components/Sidebar";
 import useCreateEssence from "@/hooks/useCreateEssence";
+import { useAddress } from "@thirdweb-dev/react";
 import Head from "next/head";
 import Image from "next/image";
 import React, { useState, useEffect } from "react";
@@ -20,6 +21,7 @@ const Create = (props: Props) => {
   const [title, setTitle] = useState<string>("");
   const [description, setDescription] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
+  const address = useAddress();
 
   const createPreview = async () => {
     if (typeof window == undefined) return;
@@ -39,6 +41,10 @@ const Create = (props: Props) => {
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
+    if (!address) {
+      toast("⚠ connect your wallet first");
+      return;
+    }
     if (preview?.length == 0 || title.length == 0 || description.length == 0) {
       toast("Please provide all details", {
         icon: "⚠",

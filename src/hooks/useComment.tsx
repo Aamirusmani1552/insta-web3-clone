@@ -3,18 +3,29 @@ import { getProvider } from "@/helpers/helpers";
 import { toast } from "react-hot-toast";
 import { useAddress } from "@thirdweb-dev/react";
 
-const useLike = () => {
+interface Content {
+  title: string;
+  body: string;
+  author: string; // The ccProfile handle of the author
+}
+
+const useComment = () => {
   const address = useAddress();
-  async function like(contentId: string) {
+
+  async function comment(contentId: string, content: Content) {
     try {
+      console.log(contentId, content);
       if (!address) {
         toast("⚠ Connect to Wallet first");
         return;
       }
-
-      console.log(contentId);
       if (contentId.length == 0) {
-        alert("please send the content id");
+        toast("please send the content id");
+        return;
+      }
+
+      if (!content) {
+        toast("Not all details provided");
         return;
       }
 
@@ -27,8 +38,8 @@ const useLike = () => {
         appId: "example_app_Id",
       });
 
-      await cyberConnect.like(contentId);
-      toast.success("Liked!");
+      await cyberConnect.createComment(contentId, content);
+      toast.success("Comment sent");
       return true;
     } catch (error) {
       const err = error as Error;
@@ -37,7 +48,7 @@ const useLike = () => {
     }
   }
 
-  return { like };
+  return { comment };
 };
 
-export default useLike;
+export default useComment;
