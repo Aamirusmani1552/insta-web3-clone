@@ -3,7 +3,6 @@ import Header from "../components/Header";
 import Sidebar from "@/components/Sidebar";
 import BottomNavBar from "@/components/BottomNavBar";
 import MainContent from "@/components/MainContent";
-import CreateProfileModal from "@/components/CreateProfileModal";
 
 export default function Home() {
   return (
@@ -21,7 +20,6 @@ export default function Home() {
           <MainContent />
         </div>
         <BottomNavBar />
-        <CreateProfileModal />
       </main>
     </>
   );

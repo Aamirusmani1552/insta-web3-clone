@@ -1,55 +1,112 @@
-import { ACCOUNTS } from "@/graphql/Accounts";
-import { useQuery } from "@apollo/client";
-import { useAddress } from "@thirdweb-dev/react";
-import { ethers } from "ethers";
+import { useLazyQuery, useMutation } from "@apollo/client";
+import { useAddress, useStorageUpload } from "@thirdweb-dev/react";
 import useLocalStorage from "../useLocalStorage";
 import { useState } from "react";
+import { VERIFY_HANDLE } from "@/graphql/VerifyHandle";
+import { toast } from "react-hot-toast";
+import useAccessToken from "../useAccessToken";
+import { CREATE_PROFILE_TYPEDATA } from "@/graphql/CreateCreateProfileTypedData";
+
+type CreateProfileInput = {
+  to: string; //owner of CC profile
+  handle: string;
+  avatar: string;
+  metadata: string;
+  operator: string;
+};
 
 const useCreateCCProfile = () => {
   let address = useAddress();
   const { getUser, setUser } = useLocalStorage();
-  const [handle, setHandle] = useState<string>("User_Handle");
-  const [profileId, setProfileId] = useState<number>();
+  const { getAccessToken } = useAccessToken();
+  const token = getAccessToken();
 
-  const { data } = useQuery(ACCOUNTS, {
-    variables: { address: address ? address : ethers.constants.AddressZero },
+  const { mutateAsync: uploadToIpfs } = useStorageUpload();
+  // const [checkHandle, { data }] = useLazyQuery(VERIFY_HANDLE, {});
+  const [createTypedData, { data }] = useMutation(CREATE_PROFILE_TYPEDATA, {
+    context: {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    },
   });
 
-  const createCCProfile = () => {
-    if (!address) return;
-    if (!data) return;
-    const handle = data?.address?.wallet?.profiles.edges?.[0]?.node?.handle;
-    const profileId =
-      data?.address?.wallet?.profiles.edges?.[0]?.node?.profileID;
-
-    if (!handle || !profileId) {
-      setHandle("No CC Profile");
-      return;
-    };
-
-    //checking if the user in localstorage is same as we get after making query
-    let userInLocalStorage = getUser();
-    if (userInLocalStorage) {
-      if (
-        userInLocalStorage.handle == handle &&
-        userInLocalStorage.profileId == profileId
-      ) {
-        setHandle(userInLocalStorage.handle);
-        setProfileId(userInLocalStorage.profileId);
+  const createCCProfile = async (
+    handle: string,
+    image: File,
+    description = "Hey there"
+  ) => {
+    let token = getAccessToken();
+    console.log(token);
+    try {
+      if (!address) {
+        toast("⚠ Please Connect Your Wallet");
         return;
       }
+
+      if (handle.length === 0) {
+        toast("⚠ Please enter a handle");
+        return;
+      }
+
+      if (!image) {
+        toast("⚠ Please upload an image");
+        return;
+      }
+
+      const ImageUploadResult = await uploadToIpfs({ data: [image] });
+      if (!ImageUploadResult || ImageUploadResult.length === 0) {
+        throw new Error("Could not upload Image");
+      }
+
+      const ipfsHash = ImageUploadResult[0];
+
+      const profileMetadata = {
+        description: description,
+        image: ipfsHash,
+        name: handle,
+        createdAt: new Date().getTime(),
+        attributes: [
+          {
+            trait_type: "InstaWeb3Profile",
+            value: "Gold Profile",
+          },
+        ],
+      };
+
+      const uploadMetaDataResult = await uploadToIpfs({
+        data: [profileMetadata],
+      });
+
+      if (uploadMetaDataResult.length === 0 || !uploadMetaDataResult) {
+        throw new Error("Failed to upload metadata");
+      }
+
+      const metaIpfshash = uploadMetaDataResult[0];
+
+      const metadataInput: CreateProfileInput = {
+        to: address,
+        handle: handle,
+        avatar: ipfsHash,
+        metadata: metaIpfshash,
+        operator: "",
+      };
+
+      const typedDataResult = await createTypedData({
+        variables: {
+          input: metadataInput,
+        },
+      });
+
+      console.log(typedDataResult);
+    } catch (error) {
+      const err = error as Error;
+      toast.error(err.message);
+      return;
     }
-
-    setUser({
-      handle,
-      profileId,
-    });
-
-    setHandle(handle);
-    setProfileId(profileId);
   };
 
-  return { createCCProfile, handle, profileId };
+  return { createCCProfile };
 };
 
 export default useCreateCCProfile;

@@ -1,14 +1,16 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import ConnectWithCyberConnect from "./ConnectWithCyberConnect";
 import useGetEssence from "@/hooks/useGetEssence";
 import { useAddress } from "@thirdweb-dev/react";
 import Post from "./Post";
+import CreateProfileModal from "./CreateProfileModal";
 
 type Props = {};
 
 function MainContent({}: Props) {
   const { getEssence, essences } = useGetEssence();
   const address = useAddress();
+  const [open, setOpen] = useState<boolean>(false);
 
   useEffect(() => {
     if (essences) return;
@@ -19,7 +21,8 @@ function MainContent({}: Props) {
     <div className="w-full flex min-h-full  px-0 md:px-20 flex-1 md:w-400px">
       <div className=" w-full   px-2 md:px-0 pb-12">
         <div className="py-4 md:flex items-center justify-end hidden ">
-          <ConnectWithCyberConnect />
+          <ConnectWithCyberConnect setOpen={setOpen} />
+          <CreateProfileModal open={open} setOpen={setOpen} />
         </div>
         {/* posts will come here */}
 

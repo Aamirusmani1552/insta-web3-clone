@@ -18,6 +18,8 @@ const useGetUserCCProfile = () => {
   const getUserCCProfile = () => {
     if (!address) return;
     if (!data) return;
+    console.log(data);
+
     const handle = data?.address?.wallet?.profiles.edges?.[0]?.node?.handle;
     const profileId =
       data?.address?.wallet?.profiles.edges?.[0]?.node?.profileID;
@@ -25,7 +27,7 @@ const useGetUserCCProfile = () => {
     if (!handle || !profileId) {
       setHandle("No CC Profile");
       return;
-    };
+    }
 
     //checking if the user in localstorage is same as we get after making query
     let userInLocalStorage = getUser();

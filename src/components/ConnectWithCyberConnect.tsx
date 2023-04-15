@@ -1,8 +1,6 @@
-import { ACCOUNTS } from "@/graphql/Accounts";
 import useGetUserCCProfile from "@/hooks/auth/useGetUserCCProfile";
 import useLoginUser from "@/hooks/auth/useLoginUser";
 import useAccessToken from "@/hooks/useAccessToken";
-import { useQuery } from "@apollo/client";
 import {
   ChainId,
   ConnectWallet,
@@ -10,26 +8,35 @@ import {
   useNetworkMismatch,
   useSwitchChain,
 } from "@thirdweb-dev/react";
-import { ethers } from "ethers";
 import { useState, useEffect } from "react";
 
-type Props = {};
+type Props = {
+  setOpen: React.Dispatch<React.SetStateAction<boolean>>;
+};
 
-const ConnectWithCyberConnect: React.FC<Props> = ({}): React.ReactElement => {
+const ConnectWithCyberConnect: React.FC<Props> = ({
+  setOpen,
+}): React.ReactElement => {
   const switchChain = useSwitchChain();
-  const { getUserCCProfile } = useGetUserCCProfile();
+  const { getUserCCProfile, handle } = useGetUserCCProfile();
   const address = useAddress();
   const { getAccessToken } = useAccessToken();
   const isWrongNetwork = useNetworkMismatch();
   const { loginUser } = useLoginUser();
 
+  console.log(isWrongNetwork);
+
   useEffect(() => {
-    getUserCCProfile();
-  }, [address, getUserCCProfile]);
+    if (!handle.includes(".cyber")) getUserCCProfile();
+  }, [address, getUserCCProfile, handle]);
 
-  // console.log(getAccessToken());
+  console.log(handle);
 
-  if (address && !getAccessToken()) {
+  if (
+    address &&
+    !handle.includes(".cyber") &&
+    !handle.includes("No CC Profile")
+  ) {
     return (
       <button
         className="bg-black text-white rounded-md text-base active:bg-gray-600  px-4 py-2 font-semibold"
@@ -38,6 +45,19 @@ const ConnectWithCyberConnect: React.FC<Props> = ({}): React.ReactElement => {
         }}
       >
         Login
+      </button>
+    );
+  }
+
+  if (address && handle.includes("No CC Profile")) {
+    return (
+      <button
+        className="bg-black text-white rounded-md text-base active:bg-gray-600  px-4 py-2 font-semibold"
+        onClick={(e) => {
+          setOpen(true);
+        }}
+      >
+        Create Account
       </button>
     );
   }
