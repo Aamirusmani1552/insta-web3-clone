@@ -18,9 +18,6 @@ const useGetEssence = () => {
   const [essences, setEssences] = useState<EssencesByFilterQuery | null>();
 
   const getEssence = () => {
-    const user = getUser();
-
-    if (!user) return;
 
     if (!data) {
       setEssences(null);

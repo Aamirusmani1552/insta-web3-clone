@@ -18,7 +18,6 @@ const useGetUserCCProfile = () => {
   const getUserCCProfile = () => {
     if (!address) return;
     if (!data) return;
-    console.log(data);
 
     const handle = data?.address?.wallet?.profiles.edges?.[0]?.node?.handle;
     const profileId =

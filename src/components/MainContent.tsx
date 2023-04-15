@@ -13,9 +13,9 @@ function MainContent({}: Props) {
   const [open, setOpen] = useState<boolean>(false);
 
   useEffect(() => {
-    if (essences) return;
     getEssence();
   }, [getEssence, address]);
+
 
   return (
     <div className="w-full flex min-h-full  px-0 md:px-20 flex-1 md:w-400px">

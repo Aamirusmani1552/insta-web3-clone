@@ -26,6 +26,7 @@ function Sidebar({}: Props) {
   const { handle, profileId, getUserCCProfile } = useGetUserCCProfile();
 
   useEffect(() => {
+    if(!address || handle.includes("No CC Profile")) return;
     getUserCCProfile();
   }, [address, handle, profileId, getUserCCProfile]);
 

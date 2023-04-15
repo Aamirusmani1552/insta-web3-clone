@@ -43,7 +43,7 @@ type Props = {
         liked: boolean;
       };
     } | null;
-  } | null;
+  } | null,
 };
 
 function Post({ data }: Props) {
@@ -159,7 +159,14 @@ function Post({ data }: Props) {
               </span>
             )}
             <span className="py-2 cursor-pointer">
-              <Link href={`/comment/${data?.node?.contentID}`}>
+              <Link href={{
+                pathname: `/comment/view`,
+                query:{
+                  contentID: data?.node?.contentID,
+                  image
+                }
+              }}
+              >
                 <CommentIcon />
               </Link>
             </span>

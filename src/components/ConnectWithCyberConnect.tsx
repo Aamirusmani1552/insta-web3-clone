@@ -32,6 +32,22 @@ const ConnectWithCyberConnect: React.FC<Props> = ({
 
   console.log(handle);
 
+
+
+  if (address && handle.includes("No CC Profile")) {
+    return (
+      <button
+        className="bg-black text-white rounded-md text-base active:bg-gray-600  px-4 py-2 font-semibold"
+        onClick={(e) => {
+          setOpen(true);
+        }}
+      >
+        Create Account
+      </button>
+    );
+  }
+
+
   if (
     address &&
     !handle.includes(".cyber") &&
@@ -45,19 +61,6 @@ const ConnectWithCyberConnect: React.FC<Props> = ({
         }}
       >
         Login
-      </button>
-    );
-  }
-
-  if (address && handle.includes("No CC Profile")) {
-    return (
-      <button
-        className="bg-black text-white rounded-md text-base active:bg-gray-600  px-4 py-2 font-semibold"
-        onClick={(e) => {
-          setOpen(true);
-        }}
-      >
-        Create Account
       </button>
     );
   }

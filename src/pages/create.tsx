@@ -22,6 +22,7 @@ const Create = (props: Props) => {
   const [description, setDescription] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
   const address = useAddress();
+  const [open,setOpen] = useState<boolean>(false);
 
   const createPreview = async () => {
     if (typeof window == undefined) return;
@@ -77,7 +78,7 @@ const Create = (props: Props) => {
           <div className="w-full flex min-h-full  px-0 md:px-20 flex-1">
             <div className=" w-full px-2 md:px-0 pb-12">
               <div className="py-4 md:flex items-center justify-end hidden ">
-                <ConnectWithCyberConnect />
+                <ConnectWithCyberConnect setOpen={setOpen} />
               </div>
 
               <form

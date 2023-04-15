@@ -57,7 +57,7 @@ const CreateProfileModal: FC<Props> = ({ open, setOpen }): ReactElement => {
       open={open}
       onClose={() => !loading && setOpen(false)}
       className={
-        "fixed top-0 z-50 bottom-0 left-0 right-0 backdrop-blur-sm flex items-center justify-center p-4"
+        "fixed top-0 z-50 bottom-0 bg-[#a5a5a541] left-0 right-0 backdrop-blur-sm flex items-center justify-center p-4"
       }
     >
       <Dialog.Panel className="bg-white shadow-xl w-full max-w-[500px] p-4 rounded-md flex flex-col gap-4">
