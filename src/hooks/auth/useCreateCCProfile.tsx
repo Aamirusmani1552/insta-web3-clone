@@ -5,7 +5,7 @@ import { ethers } from "ethers";
 import useLocalStorage from "../useLocalStorage";
 import { useState } from "react";
 
-const useGetUserCCProfile = () => {
+const useCreateCCProfile = () => {
   let address = useAddress();
   const { getUser, setUser } = useLocalStorage();
   const [handle, setHandle] = useState<string>("User_Handle");
@@ -15,7 +15,7 @@ const useGetUserCCProfile = () => {
     variables: { address: address ? address : ethers.constants.AddressZero },
   });
 
-  const getUserCCProfile = () => {
+  const createCCProfile = () => {
     if (!address) return;
     if (!data) return;
     const handle = data?.address?.wallet?.profiles.edges?.[0]?.node?.handle;
@@ -49,7 +49,7 @@ const useGetUserCCProfile = () => {
     setProfileId(profileId);
   };
 
-  return { getUserCCProfile, handle, profileId };
+  return { createCCProfile, handle, profileId };
 };
 
-export default useGetUserCCProfile;
+export default useCreateCCProfile;
