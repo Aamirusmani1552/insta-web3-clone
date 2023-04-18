@@ -21,9 +21,6 @@ const Comment: FC<Props> = (props): ReactElement => {
 
   const {like} = useLike();
 
-
-  console.log(contentID,image);
-
   if(!contentID && !image){
     return <div className="w-full min-h-[300px] flex items-center justify-center">
       <div className="w-8 h-8 border-4 border-b-transparent rounded-full animate-spin"></div>

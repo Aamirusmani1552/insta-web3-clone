@@ -90,7 +90,7 @@ function Sidebar({}: Props) {
               <div className={"text-2xl"}>
                 <CgProfile />
               </div>
-              <span className={styles.textStyles}>
+              <span className={"hidden lg:block max-w-[150px] truncate"}>
                 {/* {address?.slice(0, 4) + "..." + address?.slice(-4)} */}
                 {handle}
               </span>
