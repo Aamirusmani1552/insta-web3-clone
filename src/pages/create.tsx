@@ -4,7 +4,7 @@ import Header from "@/components/Header";
 import MainContent from "@/components/MainContent";
 import Sidebar from "@/components/Sidebar";
 import useCreateEssence from "@/hooks/useCreateEssence";
-import { useAddress } from "@thirdweb-dev/react";
+import { useAddress, useStorageUpload } from "@thirdweb-dev/react";
 import Head from "next/head";
 import Image from "next/image";
 import React, { useState, useEffect } from "react";
@@ -16,13 +16,15 @@ type Props = {};
 
 const Create = (props: Props) => {
   const [image, setImage] = useState<File>();
+  const [video, setVideo] = useState<File>();
   const [preview, setPreview] = useState<string>();
   const { createEssence, status } = useCreateEssence();
   const [title, setTitle] = useState<string>("");
   const [description, setDescription] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
   const address = useAddress();
-  const [open,setOpen] = useState<boolean>(false);
+  const { mutateAsync: uploadVedioToIPFS } = useStorageUpload();
+  const [open, setOpen] = useState<boolean>(false);
 
   const createPreview = async () => {
     if (typeof window == undefined) return;
@@ -36,7 +38,7 @@ const Create = (props: Props) => {
   };
 
   useEffect(() => {
-    if (!image) return;
+    if (!image || !video) return;
     createPreview();
   }, [image]);
 
@@ -52,12 +54,23 @@ const Create = (props: Props) => {
       });
       return;
     }
+    let video_ipfs_uri = "";
+
+    if (video) {
+      video_ipfs_uri = (await uploadVedioToIPFS({ data: [video] }))[0];
+    }
 
     setLoading(true);
-    await createEssence({ description, nftFile: image, title });
+    await createEssence({
+      description,
+      nftFile: image,
+      title,
+      vedio_ipfs_uri: video_ipfs_uri,
+    });
     setLoading(false);
     setTitle("");
     setImage(undefined);
+    setVideo(undefined);
     setDescription("");
     setPreview("");
   }
@@ -92,12 +105,14 @@ const Create = (props: Props) => {
                   htmlFor="select_image"
                   className="border-dashed border-2 min-h-[200px] p-4 w-full  rounded-md flex items-center justify-center cursor-pointer flex-col"
                 >
-                  {preview && preview.length > 0 && (
+                  {((preview && preview.length > 0) || video) && (
                     <div
                       className="w-full flex items-center justify-end text-xl"
                       onClick={(e) => {
                         e.stopPropagation();
                         setPreview("");
+                        setImage(undefined);
+                        setVideo(undefined);
                       }}
                     >
                       <RxCross2 />
@@ -108,10 +123,13 @@ const Create = (props: Props) => {
                     name="select_image"
                     id="select_image"
                     className="hidden"
+                    accept="image/*, video/*"
                     disabled={preview ? preview?.length > 0 : false}
                     onChange={(e) => {
-                      if (e.target.files) {
-                        setImage(e.target.files[0]);
+                      if (e.target.files && e.target.files.length > 0) {
+                        e.target.files[0].type.includes("image/")
+                          ? setImage(e.target.files[0])
+                          : setVideo(e.target.files[0]);
                       }
                     }}
                   />
@@ -127,7 +145,9 @@ const Create = (props: Props) => {
                     </div>
                   )}
 
-                  {!preview && (
+                  {video && <div>{video.name}</div>}
+
+                  {!preview && !video && (
                     <div className="text-5xl font-gray-500 flex">
                       <MdOutlinePermMedia />
                     </div>

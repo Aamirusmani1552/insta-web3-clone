@@ -89,6 +89,14 @@ const useLocalStorage = () => {
     return null;
   };
 
+  function removeAccessToken() {
+    if (typeof window != undefined) {
+      const ls = window.localStorage;
+
+      ls.removeItem("CC_ACCESS_TOKEN");
+    }
+  }
+
   return {
     removeUser,
     getUser,
@@ -97,6 +105,7 @@ const useLocalStorage = () => {
     setItem,
     getAccessToken,
     setAccessToken,
+    removeAccessToken,
   };
 };
 

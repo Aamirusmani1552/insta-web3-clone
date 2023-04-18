@@ -26,7 +26,7 @@ function Sidebar({}: Props) {
   const { handle, profileId, getUserCCProfile } = useGetUserCCProfile();
 
   useEffect(() => {
-    if(!address || handle.includes("No CC Profile")) return;
+    if (!address || handle.includes("No CC Profile")) return;
     getUserCCProfile();
   }, [address, handle, profileId, getUserCCProfile]);
 
@@ -86,14 +86,19 @@ function Sidebar({}: Props) {
             </Link>
           </li>
           {address && (
-            <li className={styles.listItemStyle}>
-              <div className={"text-2xl"}>
-                <CgProfile />
-              </div>
-              <span className={"hidden lg:block max-w-[150px] truncate"}>
-                {/* {address?.slice(0, 4) + "..." + address?.slice(-4)} */}
-                {handle}
-              </span>
+            <li>
+              <Link
+                href={`/profile/${handle}`}
+                className={styles.listItemStyle}
+              >
+                <div className={"text-2xl"}>
+                  <CgProfile />
+                </div>
+                <span className={"hidden lg:block max-w-[150px] truncate"}>
+                  {/* {address?.slice(0, 4) + "..." + address?.slice(-4)} */}
+                  {handle}
+                </span>
+              </Link>
             </li>
           )}
         </ul>

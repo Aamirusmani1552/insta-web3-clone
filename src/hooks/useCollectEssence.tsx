@@ -1,18 +1,15 @@
 import { useAddress } from "@thirdweb-dev/react";
 import { useLazyQuery, useMutation } from "@apollo/client";
 import { RELAY_ACTION_STATUS } from "../graphql/RelayActionStatus";
-import {
-  getAccessToken,
-  getEthereumSigner,
-  getUser,
-  parseIPFSUrl,
-} from "@/helpers/helpers";
+import { getEthereumSigner, parseIPFSUrl } from "@/helpers/helpers";
 import { RELAY } from "@/graphql/Relay";
 import { CREATE_COLLECT_ESSENCE_TYPED_DATA } from "@/graphql/CreateCollectEssenceTypedata";
 import { toast } from "react-hot-toast";
+import useLocalStorage from "./useLocalStorage";
 
 const useCollectEssence = () => {
   const address = useAddress();
+  const { getAccessToken, getUser } = useLocalStorage();
   const token = getAccessToken();
 
   const [createTypedData, { data, loading, error }] = useMutation(
@@ -20,7 +17,7 @@ const useCollectEssence = () => {
     {
       context: {
         headers: {
-          Authorization: `Bearer ${token}`,
+          Authorization: `bearer ${token?.accessToken}`,
         },
       },
     }
@@ -29,7 +26,7 @@ const useCollectEssence = () => {
   const [relay] = useMutation(RELAY, {
     context: {
       headers: {
-        Authorization: `Bearer ${token}`,
+        Authorization: `bearer ${token?.accessToken}`,
         "X-API-KEY": process.env.NEXT_PUBLIC_CYBERCONNECT_API_KEY,
       },
     },
@@ -39,16 +36,16 @@ const useCollectEssence = () => {
 
   const userInfo = getUser();
 
-  async function collectEssence(essenceId: string) {
+  async function collectEssence(essenceId: number) {
     try {
       // if no address, return
       if (!address) {
-        alert("Please connect you wallet first");
+        toast("⚠ Please connect you wallet first");
         return;
       }
 
-      if (!userInfo || token.length === 0) {
-        alert("No user token available Please login.");
+      if (!userInfo || !token) {
+        toast("⚠ No user token available Please login.");
         return;
       }
 
@@ -61,7 +58,7 @@ const useCollectEssence = () => {
           input: {
             collector: address,
             profileID: userInfo.profileId,
-            essenceID: 2,
+            essenceID: essenceId,
           },
         },
       });
@@ -104,12 +101,12 @@ const useCollectEssence = () => {
       console.log(relayActionResult);
       toast.success("Successfully Collected!");
     } catch (error) {
-      console.log(error);
-      toast.error("Something went wrong");
+      const err = error as Error;
+      toast.error(err.message);
     }
   }
 
-  return collectEssence;
+  return { collectEssence };
 };
 
 export default useCollectEssence;

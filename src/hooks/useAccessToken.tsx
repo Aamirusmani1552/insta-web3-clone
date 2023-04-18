@@ -1,4 +1,5 @@
-import React from "react";
+import React, { useEffect } from "react";
+import useGetUserCCProfile from "./auth/useGetUserCCProfile";
 
 type TokenData = {
   accessToken: string;
@@ -6,7 +7,17 @@ type TokenData = {
 };
 
 const useAccessToken = () => {
+  const { getUserCCProfile, handle } = useGetUserCCProfile();
+
+  useEffect(() => {
+    getUserCCProfile();
+  }, [handle, getUserCCProfile]);
+
   const getAccessToken = (): string | null => {
+    if (handle.includes("No CC Profile") || handle.includes("User_Handle")) {
+      return null;
+    }
+
     if (typeof window != "undefined") {
       const ls = window.localStorage;
 

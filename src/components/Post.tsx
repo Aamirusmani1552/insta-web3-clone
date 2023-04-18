@@ -13,6 +13,7 @@ import { IoMdSend } from "react-icons/io";
 import useComment from "@/hooks/useComment";
 import useGetUserCCProfile from "@/hooks/auth/useGetUserCCProfile";
 import Link from "next/link";
+import useCollectEssence from "@/hooks/useCollectEssence";
 
 type Props = {
   data: {
@@ -43,7 +44,7 @@ type Props = {
         liked: boolean;
       };
     } | null;
-  } | null,
+  } | null;
 };
 
 function Post({ data }: Props) {
@@ -55,6 +56,7 @@ function Post({ data }: Props) {
   const [commentMessage, setCommentMessage] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
   const { handle, getUserCCProfile } = useGetUserCCProfile();
+  const { collectEssence } = useCollectEssence();
   const { comment } = useComment();
   const { like } = useLike();
 
@@ -100,7 +102,9 @@ function Post({ data }: Props) {
           </span>
           <div className="flex gap-1">
             <span className="font-semibold hover:text-gray-400 cursor-pointer">
-              {data?.node?.createdBy.handle}
+              <Link href={`/profile/${data?.node?.createdBy.handle}`}>
+                {data?.node?.createdBy.handle}
+              </Link>
             </span>
             <span>•</span>
             <span className="text-gray-400">
@@ -159,13 +163,14 @@ function Post({ data }: Props) {
               </span>
             )}
             <span className="py-2 cursor-pointer">
-              <Link href={{
-                pathname: `/comment/view`,
-                query:{
-                  contentID: data?.node?.contentID,
-                  image
-                }
-              }}
+              <Link
+                href={{
+                  pathname: `/comment/view`,
+                  query: {
+                    contentID: data?.node?.contentID,
+                    image,
+                  },
+                }}
               >
                 <CommentIcon />
               </Link>
@@ -174,7 +179,15 @@ function Post({ data }: Props) {
               <SendIcon />
             </span>
           </div>
-          <span className="py-2">
+          <span
+            className="py-2 cursor-pointer"
+            onClick={async () => {
+              if (loading) return;
+              setLoading(true);
+              await collectEssence(data?.node?.essenceID!);
+              setLoading(false);
+            }}
+          >
             <SaveIcon />
           </span>
         </div>

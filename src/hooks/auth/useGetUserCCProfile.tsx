@@ -7,7 +7,7 @@ import { useState } from "react";
 
 const useGetUserCCProfile = () => {
   let address = useAddress();
-  const { getUser, setUser } = useLocalStorage();
+  const { getUser, setUser, removeAccessToken } = useLocalStorage();
   const [handle, setHandle] = useState<string>("User_Handle");
   const [profileId, setProfileId] = useState<number>();
 
@@ -18,7 +18,6 @@ const useGetUserCCProfile = () => {
   const getUserCCProfile = () => {
     if (!address) return;
     if (!data) return;
-
     const handle = data?.address?.wallet?.profiles.edges?.[0]?.node?.handle;
     const profileId =
       data?.address?.wallet?.profiles.edges?.[0]?.node?.profileID;
@@ -45,6 +44,8 @@ const useGetUserCCProfile = () => {
       handle,
       profileId,
     });
+
+    removeAccessToken();
 
     setHandle(handle);
     setProfileId(profileId);

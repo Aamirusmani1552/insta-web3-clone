@@ -48,8 +48,9 @@ const CreateProfileModal: FC<Props> = ({ open, setOpen }): ReactElement => {
       toast("⚠ Please provide all details");
       return;
     }
-
+    setLoading(true);
     await createCCProfile(handle, image, description);
+    setLoading(false);
   };
 
   return (

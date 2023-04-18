@@ -8,6 +8,7 @@ import {
   useNetworkMismatch,
   useSwitchChain,
 } from "@thirdweb-dev/react";
+import Link from "next/link";
 import { useState, useEffect } from "react";
 
 type Props = {
@@ -32,27 +33,17 @@ const ConnectWithCyberConnect: React.FC<Props> = ({
 
   console.log(handle);
 
-
-
   if (address && handle.includes("No CC Profile")) {
     return (
-      <button
-        className="bg-black text-white rounded-md text-base active:bg-gray-600  px-4 py-2 font-semibold"
-        onClick={(e) => {
-          setOpen(true);
-        }}
-      >
-        Create Account
-      </button>
+      <Link href={"https://testnet.cyberconnect.me/"} target="_blank">
+        <button className="bg-black text-white rounded-md text-base active:bg-gray-600  px-4 py-2 font-semibold">
+          Create Account
+        </button>
+      </Link>
     );
   }
 
-
-  if (
-    address &&
-    !handle.includes(".cyber") &&
-    !handle.includes("No CC Profile")
-  ) {
+  if (address && !getAccessToken()) {
     return (
       <button
         className="bg-black text-white rounded-md text-base active:bg-gray-600  px-4 py-2 font-semibold"

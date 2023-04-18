@@ -76,7 +76,8 @@ const useCreateEssence = () => {
 
       setStatus("Uploading");
       // STORING FILE IN IPFS
-      nftFileURI = (await uploadToIpfs({ data: [nftFile] }))[0];
+
+      if (nftFile) nftFileURI = (await uploadToIpfs({ data: [nftFile] }))[0];
 
       console.log(nftFileURI);
 
@@ -94,7 +95,7 @@ const useCreateEssence = () => {
         content: "",
         media: [],
         tags: [],
-        image: parseIPFSUrl(nftFileURI),
+        image: nftFileURI.length > 0 && parseIPFSUrl(nftFileURI),
         name: title.length > 0 ? title : "",
         description: description.length > 0 ? description : "",
         attributes: [],

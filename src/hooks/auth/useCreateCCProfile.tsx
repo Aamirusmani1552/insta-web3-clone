@@ -1,11 +1,12 @@
 import { useLazyQuery, useMutation } from "@apollo/client";
 import { useAddress, useStorageUpload } from "@thirdweb-dev/react";
 import useLocalStorage from "../useLocalStorage";
-import { useState } from "react";
-import { VERIFY_HANDLE } from "@/graphql/VerifyHandle";
+import { getEthereumSigner } from "@/helpers/helpers";
 import { toast } from "react-hot-toast";
 import useAccessToken from "../useAccessToken";
 import { CREATE_PROFILE_TYPEDATA } from "@/graphql/CreateCreateProfileTypedData";
+import { LOGIN_GET_MESSAGE } from "@/graphql/loginGetMessage";
+import { LOGIN_VERIFY } from "@/graphql/loginVerifty";
 
 type CreateProfileInput = {
   to: string; //owner of CC profile
@@ -20,16 +21,13 @@ const useCreateCCProfile = () => {
   const { getUser, setUser } = useLocalStorage();
   const { getAccessToken } = useAccessToken();
   const token = getAccessToken();
+  const signer = getEthereumSigner();
+  const [getLoginMessage] = useMutation(LOGIN_GET_MESSAGE);
+  const [loginVerify] = useMutation(LOGIN_VERIFY);
 
   const { mutateAsync: uploadToIpfs } = useStorageUpload();
   // const [checkHandle, { data }] = useLazyQuery(VERIFY_HANDLE, {});
-  const [createTypedData, { data }] = useMutation(CREATE_PROFILE_TYPEDATA, {
-    context: {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    },
-  });
+  const [createTypedData, { data }] = useMutation(CREATE_PROFILE_TYPEDATA, {});
 
   const createCCProfile = async (
     handle: string,
@@ -37,7 +35,6 @@ const useCreateCCProfile = () => {
     description = "Hey there"
   ) => {
     let token = getAccessToken();
-    console.log(token);
     try {
       if (!address) {
         toast("⚠ Please Connect Your Wallet");
@@ -89,16 +86,50 @@ const useCreateCCProfile = () => {
         handle: handle,
         avatar: ipfsHash,
         metadata: metaIpfshash,
-        operator: "",
+        operator: "0x",
       };
+
+      const messageResult = await getLoginMessage({
+        variables: {
+          input: {
+            address: address,
+            domain: "cyberconnect.me",
+          },
+        },
+      });
+
+      //get message from result
+      const message = messageResult?.data?.loginGetMessage?.message;
+
+      const signature = await (await signer).signMessage(message);
+
+      console.log("i am here now");
+      const accessTokenResult = await loginVerify({
+        variables: {
+          address: address,
+          domain: "cyberconnect.me",
+          signature,
+        },
+      });
+
+      console.log("i am here");
+      console.log(accessTokenResult.data?.loginVerify.accessToken);
 
       const typedDataResult = await createTypedData({
         variables: {
           input: metadataInput,
         },
+        context: {
+          headers: {
+            Authorization: `Bearer ${accessTokenResult.data?.loginVerify.accessToken}`,
+          },
+        },
       });
+      console.log("now here");
 
       console.log(typedDataResult);
+
+      console.log(accessTokenResult);
     } catch (error) {
       const err = error as Error;
       toast.error(err.message);

@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import InstaLogo from "./InstaLogo";
 import ConnectWithCyberConnect from "./ConnectWithCyberConnect";
-import CreateProfileModal from "@/components/CreateProfileModal";
 import { BsInstagram } from "react-icons/bs";
 
 type Props = {};
@@ -17,7 +16,6 @@ const Header = (props: Props) => {
       <div className="sm:block md:hidden text-3xl">
         <BsInstagram />
       </div>
-      <CreateProfileModal open={open} setOpen={setOpen} />
       <ConnectWithCyberConnect setOpen={setOpen} />
     </header>
   );
