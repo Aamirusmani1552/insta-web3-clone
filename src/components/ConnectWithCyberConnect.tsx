@@ -23,12 +23,16 @@ const ConnectWithCyberConnect: React.FC<Props> = ({
   const address = useAddress();
   const { getAccessToken } = useAccessToken();
   const isWrongNetwork = useNetworkMismatch();
-  const { loginUser } = useLoginUser();
+  const { loginUser,isLoggedIn,checkUserValid } = useLoginUser();
 
   console.log(isWrongNetwork);
 
   useEffect(() => {
-    if (!handle.includes(".cyber")) getUserCCProfile();
+    if (!handle.includes(".cyber")) {
+      getUserCCProfile();
+    }
+    checkUserValid();
+
   }, [address, getUserCCProfile, handle]);
 
   console.log(handle);
@@ -43,11 +47,12 @@ const ConnectWithCyberConnect: React.FC<Props> = ({
     );
   }
 
-  if (address && !getAccessToken()) {
+  if (address && !isLoggedIn) {
     return (
       <button
         className="bg-black text-white rounded-md text-base active:bg-gray-600  px-4 py-2 font-semibold"
         onClick={(e) => {
+          console.log("i am clicked")
           loginUser();
         }}
       >

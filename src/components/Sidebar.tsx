@@ -16,10 +16,11 @@ import { CgProfile } from "react-icons/cg";
 import Link from "next/link";
 import { useAddress } from "@thirdweb-dev/react";
 import useGetUserCCProfile from "@/hooks/auth/useGetUserCCProfile";
+import { BsFillCollectionFill } from "react-icons/bs";
 
 type Props = {};
 
-function Sidebar({}: Props) {
+function Sidebar({ }: Props) {
   const address = useAddress();
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -61,12 +62,22 @@ function Sidebar({}: Props) {
             <SearchIcon />
             <span className={styles.textStyles}>Search</span>
           </li>
-          <li className={styles.listItemStyle}>
-            <ExploreIcon />
-            <span className={styles.textStyles}>Explore</span>
+          <li>
+            <Link
+              href={`/collected`}
+              className={styles.listItemStyle}
+            >
+              <div className={"text-2xl"}>
+                <BsFillCollectionFill />
+              </div>
+              <span className={styles.textStyles}>Saved</span>
+            </Link>
           </li>
-          <li className={styles.listItemStyle}>
-            <ReelsIcon />
+
+          <li className={styles.listItemStyle + "flex items-center"}>
+            <div className="text-xl">
+              <ReelsIcon />
+            </div>
             <span className={styles.textStyles}>Reels</span>
           </li>
           <li className={styles.listItemStyle}>

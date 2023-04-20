@@ -2,17 +2,17 @@ import { useAddress } from "@thirdweb-dev/react";
 import { useLazyQuery, useMutation } from "@apollo/client";
 import { RELAY_ACTION_STATUS } from "../graphql/RelayActionStatus";
 import {
-  getAccessToken,
   getEthereumSigner,
-  getUser,
   parseIPFSUrl,
 } from "@/helpers/helpers";
 import { RELAY } from "@/graphql/Relay";
 import { CREATE_SUBSCRIBE_TYPED_DATA } from "@/graphql/CreateSubscribeTypedata";
 import { toast } from "react-hot-toast";
+import useLocalStorage from "./useLocalStorage";
 
 const useSubscribeProfile = () => {
   const address = useAddress();
+  const {getAccessToken,getUser} = useLocalStorage();
   const token = getAccessToken();
 
   const [createTypedData, { data, loading, error }] = useMutation(
@@ -20,7 +20,7 @@ const useSubscribeProfile = () => {
     {
       context: {
         headers: {
-          Authorization: `Bearer ${token}`,
+          Authorization: `Bearer ${token?.accessToken}`,
         },
       },
     }
@@ -29,7 +29,7 @@ const useSubscribeProfile = () => {
   const [relay] = useMutation(RELAY, {
     context: {
       headers: {
-        Authorization: `Bearer ${token}`,
+        Authorization: `Bearer ${token?.accessToken}`,
         "X-API-KEY": process.env.NEXT_PUBLIC_CYBERCONNECT_API_KEY,
       },
     },
@@ -43,12 +43,12 @@ const useSubscribeProfile = () => {
     try {
       // if no address, return
       if (!address) {
-        alert("Please connect you wallet first");
+        toast("⚠ Please connect you wallet first");
         return;
       }
 
-      if (!userInfo) {
-        alert("No user token available Please login.");
+      if (!userInfo || !token) {
+        toast("⚠ No user token available Please login.");
         return;
       }
 
@@ -103,11 +103,12 @@ const useSubscribeProfile = () => {
       toast.success("Successfully subscribed!");
     } catch (error) {
       console.log(error);
-      toast.error("Something went wrong");
+      const err = error as Error;
+      toast.error(err.message);
     }
   }
 
-  return subscribeProfile;
+  return {subscribeProfile};
 };
 
 export default useSubscribeProfile;

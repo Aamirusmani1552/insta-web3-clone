@@ -5,14 +5,23 @@ import { useMutation } from "@apollo/client";
 
 import { useAddress } from "@thirdweb-dev/react";
 import useLocalStorage from "../useLocalStorage";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import useGetUserCCProfile from "./useGetUserCCProfile";
 
 const useLoginUser = () => {
   const address = useAddress();
   const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
   const [loginGetMessage] = useMutation(LOGIN_GET_MESSAGE);
   const [loginVerify] = useMutation(LOGIN_VERIFY);
+  const {getUserCCProfile,handle:profileHandle} = useGetUserCCProfile();
   const { getUser, getAccessToken, setAccessToken } = useLocalStorage();
+  const userInfo = getUser();
+  const tokenData = getAccessToken();
+
+
+  useEffect(()=>{
+    getUserCCProfile();
+  },[profileHandle,getUserCCProfile])
 
   async function loginUser() {
     // Get the signers
@@ -20,17 +29,15 @@ const useLoginUser = () => {
       return;
     }
 
-    const userInfo = getUser();
-
     if (!userInfo) {
       return;
     }
 
+
     const { handle, profileId } = userInfo;
-    const tokenData = getAccessToken();
 
     try {
-      if (tokenData) {
+      if (tokenData && profileHandle == handle) {
         setIsLoggedIn(true);
         return;
       }
@@ -76,7 +83,15 @@ const useLoginUser = () => {
       console.log(error);
     }
   }
-  return { loginUser, isLoggedIn };
+
+  function checkUserValid(){
+    if (tokenData && profileHandle == userInfo?.handle) {
+      setIsLoggedIn(true);
+      return;
+    }
+    setIsLoggedIn(false)
+  }
+  return { loginUser, isLoggedIn,checkUserValid };
 };
 
 export default useLoginUser;

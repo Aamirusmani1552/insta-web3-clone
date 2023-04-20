@@ -1,19 +1,17 @@
-import { MediaRenderer } from "@thirdweb-dev/react";
-import React from "react";
+import React,{useEffect} from "react";
 
 import {
-  ExploreIcon,
   HomeIcon,
-  MessageIcon,
-  ReelsIcon,
   SearchIcon,
   CreatePostIcon,
 } from "./ImportantIcons";
 import Link from "next/link";
+import { BsFillCollectionFill } from "react-icons/bs";
+import useGetUserCCProfile from "@/hooks/auth/useGetUserCCProfile";
 
 type Props = {};
 
-function BottomNavBar({}: Props) {
+function BottomNavBar({ }: Props) {
   const styles = {
     mainContainer:
       " block md:hidden border-t-[1px] border-gray-200 fixed bg-white w-full bottom-0",
@@ -21,6 +19,12 @@ function BottomNavBar({}: Props) {
     itemStyles: "p-3 mr-2",
     profile: "w-6 h-6 bg-black rounded-full overflow-hidden",
   };
+  
+  const {getUserCCProfile,handle} = useGetUserCCProfile();
+  
+  useEffect(()=>{
+    getUserCCProfile();
+  },[handle])
 
   return (
     <nav className={styles.mainContainer}>
@@ -38,27 +42,24 @@ function BottomNavBar({}: Props) {
             <CreatePostIcon />
           </Link>
         </li>
-        <li className={styles.itemStyles}>
-          <ReelsIcon />
+        <li
+          className={"p-3 mr-2 text-2xl"}
+        >
+          <Link
+            href={`/collected`}
+          >
+              <BsFillCollectionFill />
+          </Link>
         </li>
-        <li className={styles.itemStyles}>
-          <MessageIcon />
-        </li>
-        <li className={styles.itemStyles}>
+        <li
+          className={"p-3 mr-2 text-2xl"}
+        >
+          <Link
+            href={`/profile/${handle}`}
+          >
           <div className={styles.profile}>
-            {/* <MediaRenderer
-              src={
-                // @ts-ignore
-                profileQuery?.data?.defaultProfile?.coverPicture?.original
-                  .url || lensProfile.src
-              }
-              alt={"profile"}
-              style={{
-                width: 24,
-                height: 24,
-              }}
-            /> */}
           </div>
+          </Link>
         </li>
       </ul>
     </nav>

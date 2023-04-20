@@ -23,7 +23,7 @@ function MainContent({}: Props) {
         </div>
         {/* posts will come here */}
 
-        <div>
+        <div className="flex flex-col-reverse">
           {essences ? (
             essences.essencesBy.edges?.map((e, k) => {
               return <Post key={k} data={e} />;

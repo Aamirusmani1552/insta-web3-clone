@@ -4,7 +4,11 @@ import Header from "@/components/Header";
 import Post from "@/components/Post";
 import ProfilePost from "@/components/ProfilePost";
 import Sidebar from "@/components/Sidebar";
+import { ACCOUNTS } from "@/graphql/Accounts";
 import { GET_ESSENECE } from "@/graphql/GetEssences";
+import { PROFILE_BY_HANDLE } from "@/graphql/ProfileByHandle";
+import useGetUserCCProfile from "@/hooks/auth/useGetUserCCProfile";
+import useSubscribeProfile from "@/hooks/useSubscribe";
 import { useQuery } from "@apollo/client";
 import Head from "next/head";
 import { useRouter } from "next/router";
@@ -15,7 +19,15 @@ type Props = {};
 const Profile = (props: Props) => {
   const router = useRouter();
   const [open, setOpen] = useState<boolean>(false);
+  const [followed, setFollowed] = useState<boolean>(false);
   const { handle } = router.query;
+  const { getUserCCProfile, handle: profileHandle } = useGetUserCCProfile();
+  const {subscribeProfile} = useSubscribeProfile();
+  const {data: profileData} = useQuery(PROFILE_BY_HANDLE,{
+    variables:{
+      handle: handle as string
+    }
+  });
 
   const { data } = useQuery(GET_ESSENECE, {
     variables: {
@@ -23,6 +35,10 @@ const Profile = (props: Props) => {
       handle: handle as string,
     },
   });
+
+  React.useEffect(() => {
+    getUserCCProfile();
+  }, [profileHandle])
 
   if (!handle) {
     return <div>No handle provided</div>;
@@ -52,24 +68,37 @@ const Profile = (props: Props) => {
                   {handle}
                 </h1>
                 <div>
-                  <button className="px-4 py-2 bg-black text-sm text-white rounded-md">
-                    Follow
-                  </button>
+                  {profileHandle != handle &&
+                    <button className="px-4 py-2 bg-black text-sm text-white rounded-md" 
+                      onClick={async()=>{
+                        await subscribeProfile(profileData?.profileByHandle?.profileID!)
+                        setFollowed(true);
+                      }}
+                    >
+                      {followed ? "Following" : "Follow"}
+                    </button>
+                  }
                 </div>
               </div>
 
               <div>
-                {data?.profileByHandle?.essences.edges ? (
-                  data?.profileByHandle?.essences.edges.map((e, k) => {
-                    return (
-                      <ProfilePost key={k} data={e} handle={handle as string} />
-                    );
-                  })
-                ) : (
-                  <div className="w-full h-[200px] max-w-[500px] flex items-center justify-center ">
-                    <div className="w-8 h-8 border-4 border-b-transparent rounded-full animate-spin"></div>
-                  </div>
-                )}
+                {!data ? <div className="w-full h-[200px] max-w-[500px] flex items-center justify-center ">
+                  <div className="w-8 h-8 border-4 border-b-transparent rounded-full animate-spin"></div>
+                </div>
+                  : data?.profileByHandle?.essences.edges && data?.profileByHandle?.essences.edges.length > 0 ? (
+                    data?.profileByHandle?.essences.edges.map((e, k) => {
+                      return (
+                        <ProfilePost key={k} data={{essence:{
+                          name: e?.node?.name,
+                          tokenURI: e?.node?.tokenURI
+                        }}} handle={handle as string} />
+                      );
+                    })
+                  ) : (
+                    <div className="w-full  max-w-[500px] flex items-center justify-center ">
+                      <div className="px-4 py-2 rounded-md shadow-md ">Nothing to show here</div>
+                    </div>
+                  )}
               </div>
             </div>
           </div>

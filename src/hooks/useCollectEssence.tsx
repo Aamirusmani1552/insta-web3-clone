@@ -99,7 +99,7 @@ const useCollectEssence = () => {
       });
 
       console.log(relayActionResult);
-      toast.success("Successfully Collected!");
+      toast.success("Successfully Collected! Refresh After Sometime");
     } catch (error) {
       const err = error as Error;
       toast.error(err.message);

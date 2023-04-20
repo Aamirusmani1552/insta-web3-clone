@@ -13,34 +13,35 @@ import { AiFillHeart } from "react-icons/ai";
 
 type Props = {
   handle: string;
-  data: {
-    __typename?: "EssenceEdge" | undefined;
-    node?:
-      | {
-          __typename?: "Essence" | undefined;
-          name: string;
-          tokenURI: any;
-        }
-      | null
-      | undefined;
-  } | null;
+  data:  {
+    __typename?: "Collect" | undefined;
+    essence: {
+        __typename?: "Essence" | undefined;
+        name?: string;
+        tokenURI: any;
+    };
+} | null | undefined
 };
+
 
 const ProfilePost = ({ data, handle }: Props) => {
   const [metadata, setMetadata] = useState<EssenceMetadata>();
 
+console.log(data, 'is the coming data')
   useEffect(() => {
-    data?.node?.tokenURI &&
+    
+    data &&
       axios
-        .get<EssenceMetadata>(data?.node?.tokenURI)
+        .get<EssenceMetadata>(data?.essence.tokenURI)
         .then((d) => {
+          console.log(d.data)
           setMetadata(d.data);
         })
         .catch((err) => {
           const error = err as Error;
           toast.error(error.message);
         });
-  }, [data?.node?.tokenURI]);
+  }, [data]);
 
   return (
     <div className="w-full  lg:w-[500px]  border-b-[1px] pb-[20px] border-gray-300 text-sm">

@@ -38,9 +38,10 @@ const Create = (props: Props) => {
   };
 
   useEffect(() => {
-    if (!image || !video) return;
     createPreview();
   }, [image]);
+
+  console.log(image, preview)
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
